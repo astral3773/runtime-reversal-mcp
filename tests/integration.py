@@ -41,7 +41,7 @@ async def run(configuration):
                 names = {tool.name for tool in (await session.list_tools()).tools}
                 assert names == {"attach_binary", "get_all_modules", "get_module", "add_hook",
                                  "remove_hook", "get_hook_hits", "allocate_memory", "free_memory",
-                                 "read_memory", "write_memory", "invoke_function", "get_invocation_result"}
+                                 "read_memory", "write_memory", "invoke_function", "get_invocation_result", "scan_for_value"}
                 await call("attach_binary", {"pid": info["pid"]})
                 await call("read_memory", {"address": 0, "size": 1}, error=True)
                 await call("write_memory", {"address": 0, "data": "ff"}, error=True)

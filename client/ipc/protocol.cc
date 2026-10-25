@@ -45,7 +45,17 @@ void Transfer(HANDLE pipe, void* data, DWORD size, bool writing,
 }
 
 std::wstring PipeName(DWORD pid) {
-  return L"\\\\.\\pipe\\rrm-" + std::to_wstring(pid);
+  HMODULE module = nullptr;
+  CheckWindows(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                                   GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                                   reinterpret_cast<LPCWSTR>(&PipeName), &module),
+               "GetModuleHandleExW(pipe namespace)");
+  wchar_t path[32768]{};
+  CheckWindows(GetModuleFileNameW(module, path, 32768) != 0,
+               "GetModuleFileNameW(pipe namespace)");
+  std::wstring name(path);
+  name = name.substr(name.find_last_of(L"\\/") + 1);
+  return L"\\\\.\\pipe\\rrm-" + name + L"-" + std::to_wstring(pid);
 }
 
 void SendMessage(HANDLE pipe, const nlohmann::json& message) {

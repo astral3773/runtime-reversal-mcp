@@ -11,6 +11,7 @@
     <ClInclude Include="ipc\agent.h"><Filter>ipc</Filter></ClInclude>
     <ClInclude Include="ipc\protocol.h"><Filter>ipc</Filter></ClInclude>
     <ClInclude Include="memory\memory.h"><Filter>memory</Filter></ClInclude>
+    <ClInclude Include="memory\scanner.h"><Filter>memory</Filter></ClInclude>
     <ClInclude Include="spoof_call\spoof_call.h"><Filter>spoof_call</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -19,6 +20,7 @@
     <ClCompile Include="ipc\agent.cc"><Filter>ipc</Filter></ClCompile>
     <ClCompile Include="ipc\protocol.cc"><Filter>ipc</Filter></ClCompile>
     <ClCompile Include="memory\memory.cc"><Filter>memory</Filter></ClCompile>
+    <ClCompile Include="memory\scanner.cc"><Filter>memory</Filter></ClCompile>
     <ClCompile Include="spoof_call\spoof_call.cc"><Filter>spoof_call</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup><MASM Include="spoof_call\spoof_call.asm"><Filter>spoof_call</Filter></MASM></ItemGroup>

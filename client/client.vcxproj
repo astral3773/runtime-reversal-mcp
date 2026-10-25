@@ -11,6 +11,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <TargetName Condition="'$(RrmClientName)'!=''">$(RrmClientName)</TargetName>
     <PlatformToolset>v143</PlatformToolset>
     <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
     <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
@@ -24,8 +25,8 @@
     </ClCompile>
     <Link><AdditionalDependencies>Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies></Link>
   </ItemDefinitionGroup>
-  <ItemGroup><ClInclude Include="client.h;hooking\exception_hooks.h;memory\memory.h;ipc\agent.h;ipc\protocol.h;spoof_call\spoof_call.h" /></ItemGroup>
-  <ItemGroup><ClCompile Include="client.cc;hooking\exception_hooks.cc;memory\memory.cc;ipc\agent.cc;ipc\protocol.cc;spoof_call\spoof_call.cc" /></ItemGroup>
+  <ItemGroup><ClInclude Include="client.h;hooking\exception_hooks.h;memory\memory.h;memory\scanner.h;ipc\agent.h;ipc\protocol.h;spoof_call\spoof_call.h" /></ItemGroup>
+  <ItemGroup><ClCompile Include="client.cc;hooking\exception_hooks.cc;memory\memory.cc;memory\scanner.cc;ipc\agent.cc;ipc\protocol.cc;spoof_call\spoof_call.cc" /></ItemGroup>
   <ItemGroup><MASM Include="spoof_call\spoof_call.asm"><ObjectFileName>$(IntDir)spoof_call_asm.obj</ObjectFileName></MASM></ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\third_party\zydis.vcxproj">

@@ -9,6 +9,7 @@
 #include "client/ipc/agent.h"
 #include "client/ipc/protocol.h"
 #include "client/memory/memory.h"
+#include "client/memory/scanner.h"
 
 namespace rrm {
 namespace {
@@ -153,6 +154,23 @@ ModuleInfo Client::GetModule(const std::wstring& name) const {
     }
   }
   throw std::runtime_error("Module not found");
+}
+
+std::string Client::ScanForValue(const std::string& args) const {
+  if (process_ == nullptr || WaitForSingleObject(process_, 0) != WAIT_TIMEOUT) {
+    throw std::runtime_error("Attach a running process first");
+  }
+  UniqueHandle process(OpenProcess(
+      PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE, FALSE, pid_));
+  if (!process) ThrowWindowsError("OpenProcess(scan)");
+  FILETIME original{}, current{}, exit{}, kernel{}, user{};
+  CheckWindows(GetProcessTimes(process_, &original, &exit, &kernel, &user),
+               "GetProcessTimes(attached)");
+  CheckWindows(GetProcessTimes(process.get(), &current, &exit, &kernel, &user),
+               "GetProcessTimes(scan)");
+  if (CompareFileTime(&original, &current) != 0)
+    throw std::runtime_error("Attached process identity changed");
+  return rrm::ScanForValue(process.get(), nlohmann::json::parse(args)).dump();
 }
 
 void Client::ConnectAgent() {

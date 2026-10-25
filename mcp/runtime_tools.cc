@@ -71,8 +71,67 @@ Json RuntimeTools() {
   timeout["default"] = 5000;
   auto poll_timeout = timeout;
   poll_timeout["default"] = 0;
+  auto scan_filter = [](Json values, Json defaults) -> Json {
+    return {{"type", "array"},
+            {"items", {{"type", "string"}, {"enum", values}}},
+            {"minItems", 1},
+            {"maxItems", values.size()},
+            {"uniqueItems", true},
+            {"default", defaults}};
+  };
+  auto scan_width = Integer(1, 8);
+  scan_width["enum"] = {1, 2, 4, 8};
+  scan_width["default"] = 8;
+  auto scan_alignment = Integer(1, 4096);
+  scan_alignment["default"] = 1;
+  auto scan_threads = Integer(0, 64);
+  scan_threads["default"] = 0;
+  auto scan_cap = Integer(1, 1000000);
+  scan_cap["default"] = 100000;
+  auto scan_timeout = Integer(1, 20000);
+  scan_timeout["default"] = 10000;
+  auto scan_bound = Integer(0, 0x800000000000ULL);
+  scan_bound["default"] = 0;
   return Json::array(
-      {Tool(
+      {Tool("scan_for_value",
+            "Find addresses containing an exact unsigned little-endian value "
+            "in attached-process memory using CreateThread workers. "
+            "value is an integer or decimal/0x-prefixed string; width defaults "
+            "to 8 bytes for pointers. "
+            "mem_types selects private/mapped/image; states selects "
+            "committed/reserved/free; protections selects exact base "
+            "protection names. "
+            "Only committed readable non-guard pages can actually be scanned, "
+            "regardless of filters. "
+            "start/end bound the address interval (end exclusive; zero means "
+            "system bound). alignment defaults to 1 to include unaligned "
+            "pointers. "
+            "threads=0 uses up to 16 logical CPUs. Returns sorted addresses "
+            "and completeness, timeout, cap and skipped-read statistics. "
+            "Results are a live best-effort scan, not an atomic snapshot. "
+            "Scanning happens outside the target without injecting an agent.",
+            {{"value",
+              {{"anyOf", Json::array({{{"type", "integer"}, {"minimum", 0}},
+                                      {{"type", "string"}}})}}},
+             {"mem_types", scan_filter({"private", "mapped", "image"},
+                                       {"private", "mapped", "image"})},
+             {"states",
+              scan_filter({"committed", "reserved", "free"}, {"committed"})},
+             {"protections",
+              scan_filter({"readonly", "readwrite", "writecopy", "execute_read",
+                           "execute_readwrite", "execute_writecopy", "execute",
+                           "noaccess"},
+                          {"readonly", "readwrite", "writecopy", "execute_read",
+                           "execute_readwrite", "execute_writecopy"})},
+             {"width", scan_width},
+             {"alignment", scan_alignment},
+             {"threads", scan_threads},
+             {"start", scan_bound},
+             {"end", scan_bound},
+             {"max_results", scan_cap},
+             {"timeout_ms", scan_timeout}},
+            {"value"}),
+       Tool(
            "invoke_function",
            "Invoke a standard Windows x64 function on a new thread inside the "
            "attached process. "
@@ -200,7 +259,9 @@ Json CallRuntimeTool(Client& client, const std::string& name, Json args) {
       const auto& rule = properties[item.key()];
       const auto& value = item.value();
       bool valid = true;
-      if (rule["type"] == "integer") {
+      if (rule.contains("anyOf")) {
+        valid = value.is_number_integer() || value.is_string();
+      } else if (rule["type"] == "integer") {
         valid = value.is_number_integer() &&
                 (value.is_number_unsigned() || value.get<std::int64_t>() >= 0);
         if (valid) {
@@ -233,6 +294,8 @@ Json CallRuntimeTool(Client& client, const std::string& name, Json args) {
       if (!valid)
         throw std::invalid_argument("Invalid argument: " + item.key());
     }
+    if (name == "scan_for_value")
+      return Json::parse(client.ScanForValue(args.dump()));
     return Json::parse(
         client.Command(Json({{"command", name}, {"arguments", args}}).dump()));
   }

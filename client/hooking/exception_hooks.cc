@@ -146,6 +146,7 @@ void* MakeTrampoline(std::uint64_t address,
     throw std::invalid_argument(
         "Instruction is unsupported by the relocation encoder");
   }
+  bool needs_nearby_page = false;
   for (std::size_t i = 0; i < instruction.operand_count_visible; ++i) {
     const auto& operand = operands[i];
     bool relative_memory = operand.type == ZYDIS_OPERAND_TYPE_MEMORY &&
@@ -154,6 +155,7 @@ void* MakeTrampoline(std::uint64_t address,
     bool relative_immediate =
         operand.type == ZYDIS_OPERAND_TYPE_IMMEDIATE && operand.imm.is_relative;
     if (relative_memory || relative_immediate) {
+      needs_nearby_page = true;
       ZyanU64 target = 0;
       if (!ZYAN_SUCCESS(ZydisCalcAbsoluteAddress(&instruction, &operand,
                                                  address, &target))) {
@@ -169,7 +171,9 @@ void* MakeTrampoline(std::uint64_t address,
       }
     }
   }
-  void* page = AllocateNear(address);
+  void* page = needs_nearby_page ? AllocateNear(address) :
+      VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+  CheckWindows(page != nullptr, "VirtualAlloc(trampoline)");
   try {
     std::uint8_t encoded[64]{};
     ZyanUSize length = 32;

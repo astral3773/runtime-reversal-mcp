@@ -49,6 +49,12 @@ async def run(configuration):
                     assert result["value"] == functions["self_return"], result
                     assert result["return_address"] == functions["self_return"]
                 assert (await invoke("alignment"))["value"] == 8
+                assert functions["isolated"] != 0
+                assert (await invoke("isolated", [numeric(321)]))["value"] == 321
+                vector = "0000a03f000020c0000070400000803f"
+                result = await invoke("vector_return", [dict(type="bytes", value=vector),
+                                                        dict(type="bytes", value="00" * 16)], "bytes", return_size=16)
+                assert result["value"] == vector
                 for count in range(17):
                     result = await invoke("sum16", [numeric(i) for i in range(1, count + 1)])
                     assert result["value"] == sum(i * i for i in range(1, count + 1))

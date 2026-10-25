@@ -1,6 +1,7 @@
 #include "tests/invoke_target.h"
 
 #include <intrin.h>
+#include <immintrin.h>
 #include <windows.h>
 
 #include <cstdint>
@@ -91,13 +92,30 @@ __declspec(noinline) void BufferFault(volatile unsigned char* data) {
 
 __declspec(noinline) void ThreadExit() { ExitThread(123); }
 
+__declspec(noinline) void* VectorReturn(const float* object, float* output) {
+  _mm_store_ps(output, _mm_load_ps(object));
+  return output;
+}
+
 }
 
 extern "C" std::uint64_t InvocationAlignment();
 extern "C" std::uint64_t InvocationClobberFault();
 
 nlohmann::json InvocationTargets() {
+  auto* isolated = static_cast<unsigned char*>(VirtualAlloc(
+      nullptr, 0x100000000ULL, MEM_RESERVE, PAGE_NOACCESS));
+  if (isolated != nullptr) {
+    isolated += 0x80000000ULL;
+    if (VirtualAlloc(isolated, 4096, MEM_COMMIT, PAGE_EXECUTE_READWRITE)) {
+      const unsigned char code[] = {0x56, 0x48, 0x8b, 0xc1, 0x5e, 0xc3};
+      std::memcpy(isolated, code, sizeof(code));
+      FlushInstructionCache(GetCurrentProcess(), isolated, sizeof(code));
+    } else isolated = nullptr;
+  }
   return {{"self_return", reinterpret_cast<std::uint64_t>(&SelfReturn)},
+          {"isolated", reinterpret_cast<std::uint64_t>(isolated)},
+          {"vector_return", reinterpret_cast<std::uint64_t>(&VectorReturn)},
           {"sum16", reinterpret_cast<std::uint64_t>(&Sum16)},
           {"mixed16", reinterpret_cast<std::uint64_t>(&Mixed16)},
           {"floats", reinterpret_cast<std::uint64_t>(&Floats)},
