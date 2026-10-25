@@ -1,0 +1,25 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="hooking"><UniqueIdentifier>{8ECA8565-5401-43BD-A4FA-E41B0A55B235}</UniqueIdentifier></Filter>
+    <Filter Include="ipc"><UniqueIdentifier>{08DDA740-B73B-459A-94CB-88767DD903AD}</UniqueIdentifier></Filter>
+    <Filter Include="memory"><UniqueIdentifier>{032458DD-3899-483F-B755-8E85845C4197}</UniqueIdentifier></Filter>
+    <Filter Include="spoof_call"><UniqueIdentifier>{A02FA5F9-6464-4B8E-9501-389551E50EDE}</UniqueIdentifier></Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="client.h" />
+    <ClInclude Include="hooking\exception_hooks.h"><Filter>hooking</Filter></ClInclude>
+    <ClInclude Include="ipc\agent.h"><Filter>ipc</Filter></ClInclude>
+    <ClInclude Include="ipc\protocol.h"><Filter>ipc</Filter></ClInclude>
+    <ClInclude Include="memory\memory.h"><Filter>memory</Filter></ClInclude>
+    <ClInclude Include="spoof_call\spoof_call.h"><Filter>spoof_call</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="client.cc" />
+    <ClCompile Include="hooking\exception_hooks.cc"><Filter>hooking</Filter></ClCompile>
+    <ClCompile Include="ipc\agent.cc"><Filter>ipc</Filter></ClCompile>
+    <ClCompile Include="ipc\protocol.cc"><Filter>ipc</Filter></ClCompile>
+    <ClCompile Include="memory\memory.cc"><Filter>memory</Filter></ClCompile>
+    <ClCompile Include="spoof_call\spoof_call.cc"><Filter>spoof_call</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup><MASM Include="spoof_call\spoof_call.asm"><Filter>spoof_call</Filter></MASM></ItemGroup>
+</Project>

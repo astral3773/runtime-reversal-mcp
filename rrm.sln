@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "mcp", "mcp\mcp.vcxproj", "{9D835445-1616-45AB-B965-CBDEDA64FD16}"
+EndProject
+Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "client", "client\client.vcxproj", "{0F862E99-9271-494A-8135-B20976A856EC}"
+EndProject
+Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "zydis", "third_party\zydis.vcxproj", "{65848BB2-8D60-4C06-BD44-0569D3D14A9A}"
+EndProject
+Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "zycore", "third_party\zycore.vcxproj", "{85556115-6B09-4C55-A2C0-77B53F55018F}"
+EndProject
+Global
+  GlobalSection(SolutionConfigurationPlatforms) = preSolution
+    Debug|x64 = Debug|x64
+    Release|x64 = Release|x64
+  EndGlobalSection
+  GlobalSection(ProjectConfigurationPlatforms) = postSolution
+    {65848BB2-8D60-4C06-BD44-0569D3D14A9A}.Debug|x64.ActiveCfg = Debug|x64
+    {65848BB2-8D60-4C06-BD44-0569D3D14A9A}.Debug|x64.Build.0 = Debug|x64
+    {65848BB2-8D60-4C06-BD44-0569D3D14A9A}.Release|x64.ActiveCfg = Release|x64
+    {65848BB2-8D60-4C06-BD44-0569D3D14A9A}.Release|x64.Build.0 = Release|x64
+    {85556115-6B09-4C55-A2C0-77B53F55018F}.Debug|x64.ActiveCfg = Debug|x64
+    {85556115-6B09-4C55-A2C0-77B53F55018F}.Debug|x64.Build.0 = Debug|x64
+    {85556115-6B09-4C55-A2C0-77B53F55018F}.Release|x64.ActiveCfg = Release|x64
+    {85556115-6B09-4C55-A2C0-77B53F55018F}.Release|x64.Build.0 = Release|x64
+    {9D835445-1616-45AB-B965-CBDEDA64FD16}.Debug|x64.ActiveCfg = Debug|x64
+    {9D835445-1616-45AB-B965-CBDEDA64FD16}.Debug|x64.Build.0 = Debug|x64
+    {9D835445-1616-45AB-B965-CBDEDA64FD16}.Release|x64.ActiveCfg = Release|x64
+    {9D835445-1616-45AB-B965-CBDEDA64FD16}.Release|x64.Build.0 = Release|x64
+    {0F862E99-9271-494A-8135-B20976A856EC}.Debug|x64.ActiveCfg = Debug|x64
+    {0F862E99-9271-494A-8135-B20976A856EC}.Debug|x64.Build.0 = Debug|x64
+    {0F862E99-9271-494A-8135-B20976A856EC}.Release|x64.ActiveCfg = Release|x64
+    {0F862E99-9271-494A-8135-B20976A856EC}.Release|x64.Build.0 = Release|x64
+  EndGlobalSection
+EndGlobal
