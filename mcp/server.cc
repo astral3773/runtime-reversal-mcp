@@ -100,6 +100,18 @@ Json Tools() {
          {{"type", "object"},
           {"properties", Json::object()},
           {"additionalProperties", false}}}},
+       {{"name", "get_module_exports"},
+        {"description",
+         "List every export of a loaded module by case-insensitive filename. "
+         "Returns exports with name (null for ordinal-only), ordinal, RVA, "
+         "address and forwarder. Forwarded exports have a null address and "
+         "a forwarder string; destinations are not resolved. Aliases are "
+         "separate entries. Reads target memory without loading an agent."},
+        {"inputSchema",
+         {{"type", "object"},
+          {"properties", {{"name", name_schema}}},
+          {"required", {"name"}},
+          {"additionalProperties", false}}}},
        {{"name", "get_module"},
         {"description",
          "Get an attached process module by case-insensitive "
@@ -119,7 +131,8 @@ Json Server::CallTool(const Json& params) {
   }
   const auto name = params["name"].get<std::string>();
   if (name != "attach_binary" && name != "get_all_modules" &&
-      name != "get_module" && !IsRuntimeTool(name)) {
+      name != "get_module" && name != "get_module_exports" &&
+      !IsRuntimeTool(name)) {
     throw RpcError(-32602, "Unknown tool: " + name);
   }
   Json args = params.value("arguments", Json::object());
@@ -150,9 +163,15 @@ Json Server::CallTool(const Json& params) {
                          {"name", ToUtf8(process.name)},
                          {"path", ToUtf8(process.path)}});
     }
-    if (name == "get_module") {
+    if (name == "get_module" || name == "get_module_exports") {
       if (args.size() != 1 || !args.contains("name")) {
         throw std::invalid_argument("Provide a module name");
+      }
+      if (name == "get_module_exports") {
+        auto module_name = ToWide(args.at("name").get<std::string>());
+        auto result = Json::parse(client_.GetModuleExports(module_name));
+        result["module"] = Serialize(client_.GetModule(module_name));
+        return ToolResult(result);
       }
       return ToolResult(Serialize(
           client_.GetModule(ToWide(args.at("name").get<std::string>()))));

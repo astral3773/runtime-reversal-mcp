@@ -39,7 +39,7 @@ async def run(configuration):
                     return json.loads(result.content[0].text)
 
                 names = {tool.name for tool in (await session.list_tools()).tools}
-                assert names == {"attach_binary", "get_all_modules", "get_module", "add_hook",
+                assert names == {"attach_binary", "get_all_modules", "get_module", "get_module_exports", "add_hook",
                                  "remove_hook", "get_hook_hits", "allocate_memory", "free_memory",
                                  "read_memory", "write_memory", "invoke_function", "get_invocation_result", "scan_for_value", "add_watcher", "remove_watcher", "get_watcher_hits"}
                 await call("attach_binary", {"pid": info["pid"]})

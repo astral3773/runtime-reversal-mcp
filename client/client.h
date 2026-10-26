@@ -39,6 +39,7 @@ class RRM_CLIENT_API Client {
   ProcessInfo AttachBinary(const std::wstring& name);
   std::vector<ModuleInfo> GetAllModules() const;
   ModuleInfo GetModule(const std::wstring& name) const;
+  std::string GetModuleExports(const std::wstring& name) const;
   std::string Command(const std::string& request);
   std::string ScanForValue(const std::string& args) const;
 

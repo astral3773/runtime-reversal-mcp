@@ -6,13 +6,12 @@ A Windows x64 MCP server that lets your LLM agent inspect and interact with a ru
 ## Features
 
 - Attach by process name or PID.
-- List modules and get their base addresses and sizes.
+- List modules and get their base addresse, size, and exports.
 - Read, write, allocate, and free memory, with errors for invalid addresses.
 - Multithreaded value scanning with memory type, protection, and address range filters.
 - Log execution hits with registers, XMM values, stack snapshots, and timestamps.
 - Watch data addresses for reads and writes, including the instruction responsible.
 - Invoke functions with return address and stack pass-through, allows arguments (numeric, decimal, string, or byte-buffer), and returns the result (rax).
-
 Address watchers use page guards and briefly single-step to re-arm them, so concurrent accesses can be missed. Native function calls can still crash the target if the address or calling signature is wrong.
 
 ## Usage

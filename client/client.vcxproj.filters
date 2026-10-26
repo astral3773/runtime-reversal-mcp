@@ -7,6 +7,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="memory\module_exports.h"><Filter>memory</Filter></ClInclude>
     <ClInclude Include="hooking\address_watchers.h"><Filter>hooking</Filter></ClInclude>
     <ClInclude Include="hooking\exception_hooks.h"><Filter>hooking</Filter></ClInclude>
     <ClInclude Include="ipc\agent.h"><Filter>ipc</Filter></ClInclude>
@@ -17,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client.cc" />
+    <ClCompile Include="memory\module_exports.cc"><Filter>memory</Filter></ClCompile>
     <ClCompile Include="hooking\address_watchers.cc"><Filter>hooking</Filter></ClCompile>
     <ClCompile Include="hooking\exception_hooks.cc"><Filter>hooking</Filter></ClCompile>
     <ClCompile Include="ipc\agent.cc"><Filter>ipc</Filter></ClCompile>
