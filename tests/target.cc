@@ -30,6 +30,11 @@ int main() {
   std::memcpy(code + 64, rip, sizeof(rip));
   std::memcpy(code + 128, branch, sizeof(branch));
   std::memcpy(code + 192, conditional, sizeof(conditional));
+  const unsigned char watch_read[] = {0x48, 0x8b, 0x01, 0xc3};
+  const unsigned char watch_write[] = {0x48, 0xc7, 0x01, 0x2a, 0, 0,   0,
+                                       0xb8, 0x2a, 0,    0,    0, 0xc3};
+  std::memcpy(code + 256, watch_read, sizeof(watch_read));
+  std::memcpy(code + 320, watch_write, sizeof(watch_write));
   DWORD old = 0;
   if (!VirtualProtect(memory + 4096, 4096, PAGE_NOACCESS, &old)) return 2;
   if (!VirtualProtect(memory + 8192, 4096, PAGE_READONLY, &old)) return 3;
@@ -45,6 +50,9 @@ int main() {
       {"noaccess", reinterpret_cast<std::uint64_t>(memory + 4096)},
       {"readonly", reinterpret_cast<std::uint64_t>(memory + 8192)},
       {"guarded", reinterpret_cast<std::uint64_t>(memory + 12288)}};
+  info["stack"] = reinterpret_cast<std::uint64_t>(&old);
+  info["watch_read"] = reinterpret_cast<std::uint64_t>(code + 256);
+  info["watch_write"] = reinterpret_cast<std::uint64_t>(code + 320);
   info["functions"] = InvocationTargets();
   std::cout << info.dump() << std::endl;
   std::string line;

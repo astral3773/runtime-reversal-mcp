@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "client/hooking/address_watchers.h"
 #include "client/ipc/protocol.h"
 #include "client/memory/memory.h"
 #include "client/spoof_call/spoof_call.h"
@@ -171,8 +172,10 @@ void* MakeTrampoline(std::uint64_t address,
       }
     }
   }
-  void* page = needs_nearby_page ? AllocateNear(address) :
-      VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+  void* page = needs_nearby_page
+                   ? AllocateNear(address)
+                   : VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE,
+                                  PAGE_READWRITE);
   CheckWindows(page != nullptr, "VirtualAlloc(trampoline)");
   try {
     std::uint8_t encoded[64]{};
@@ -363,6 +366,8 @@ void ExceptionHooks::Capture(Hook& hook, const CONTEXT& context) {
 }
 
 LONG WINAPI ExceptionHooks::HandleException(EXCEPTION_POINTERS* info) {
+  if (AddressWatchers::HandleException(info) == EXCEPTION_CONTINUE_EXECUTION)
+    return EXCEPTION_CONTINUE_EXECUTION;
   if (!capturing && SpoofCall::HandleException(info)) {
     return EXCEPTION_CONTINUE_EXECUTION;
   }

@@ -6,6 +6,7 @@
 #include <limits>
 #include <stdexcept>
 
+#include "client/hooking/address_watchers.h"
 #include "client/hooking/exception_hooks.h"
 #include "client/ipc/protocol.h"
 #include "client/memory/memory.h"
@@ -26,6 +27,25 @@ nlohmann::json Execute(Memory& memory, SpoofCall& invoker,
     return invoker.GetResult(
         UnsignedArgument(args, "invocation_id", UINT64_MAX),
         static_cast<DWORD>(UnsignedArgument(args, "timeout_ms", 10000)));
+  }
+  auto& watchers = AddressWatchers::Instance();
+  if (command == "add_watcher") {
+    return watchers.Add(
+        UnsignedArgument(args, "address", UINT64_MAX),
+        static_cast<std::size_t>(UnsignedArgument(args, "size", 4096)),
+        args.at("access_type").get<std::string>(),
+        static_cast<std::size_t>(UnsignedArgument(args, "capacity", 4096)));
+  }
+  if (command == "remove_watcher") {
+    auto address = UnsignedArgument(args, "address", UINT64_MAX);
+    watchers.Remove(address);
+    return {{"address", address}, {"removed", true}};
+  }
+  if (command == "get_watcher_hits") {
+    return watchers.GetHits(
+        UnsignedArgument(args, "address", UINT64_MAX),
+        UnsignedArgument(args, "after", UINT64_MAX),
+        static_cast<std::size_t>(UnsignedArgument(args, "limit", 1024)));
   }
   auto& hooks = ExceptionHooks::Instance();
   if (command == "add_hook") {
@@ -68,6 +88,8 @@ nlohmann::json Execute(Memory& memory, SpoofCall& invoker,
   if (command == "write_memory") {
     auto bytes = DecodeHex(args.at("data").get<std::string>());
     ValidateRange(address, bytes.size());
+    if (watchers.Overlaps(address, bytes.size()))
+      throw std::invalid_argument("Write overlaps a watched page");
     if (hooks.Overlaps(address, bytes.size())) {
       throw std::invalid_argument(
           "Write overlaps a hook or retained trampoline");
@@ -76,6 +98,8 @@ nlohmann::json Execute(Memory& memory, SpoofCall& invoker,
     return {{"address", address}, {"written", bytes.size()}};
   }
   if (command == "free_memory") {
+    if (watchers.Overlaps(address, memory.AllocationSize(address)))
+      throw std::invalid_argument("Allocation contains a watched page");
     if (hooks.Overlaps(address, memory.AllocationSize(address))) {
       throw std::invalid_argument(
           "Allocation contains an active hook or retained trampoline");
@@ -119,6 +143,7 @@ DWORD WINAPI AgentThread(void* parameter) {
     } catch (...) {
     }
     try {
+      AddressWatchers::Instance().RemoveAll();
       ExceptionHooks::Instance().RemoveAll();
     } catch (...) {
     }

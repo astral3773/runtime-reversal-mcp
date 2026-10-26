@@ -167,6 +167,46 @@ Json RuntimeTools() {
             {{"invocation_id", Integer(1, UINT64_MAX)},
              {"timeout_ms", poll_timeout}},
             {"invocation_id"}),
+       Tool(
+           "add_watcher",
+           "Watch a data address using page-guard exceptions. Loads the agent. "
+           "Captures read/write fault addresses, instruction VAs, decoded "
+           "Intel "
+           "instructions, thread IDs and Unix microsecond timestamps. "
+           "size defaults to 1 and must fit within one committed readable "
+           "non-executable non-guard page. Agent memory and thread stacks are "
+           "rejected. One watcher per page, 64 lifetime "
+           "installations. access_type filters read/write/readwrite. "
+           "Temporarily single-steps to rearm guards. Page-wide faults and "
+           "rearm windows cause overhead and missed concurrent accesses; "
+           "this is best effort, not exhaustive tracing. Filtering uses the "
+           "reported fault address, not decoded operand overlap. Remove before "
+           "freeing or changing protection of watched memory.",
+           {{"address", address},
+            {"size",
+             {{"type", "integer"},
+              {"minimum", 1},
+              {"maximum", 4096},
+              {"default", 1}}},
+            {"access_type",
+             {{"type", "string"},
+              {"enum", {"read", "write", "readwrite"}},
+              {"default", "readwrite"}}},
+            {"capacity", capacity}},
+           {"address"}),
+       Tool("remove_watcher",
+            "Remove a data watcher, restore its page guard state and discard "
+            "its retained hits. Small internal records remain for in-flight "
+            "exceptions until process exit.",
+            {{"address", address}}, {"address"}),
+       Tool("get_watcher_hits",
+            "Read bounded watcher logs. address=0 selects all watchers. "
+            "Use each watcher's next_after with its address for pagination. "
+            "Returns access_type, accessed address, instruction_address and "
+            "decoded instruction. Retrieval does not clear hits. Concurrent "
+            "accesses during guard rearming may be missed without a count.",
+            {{"address", optional_address}, {"after", after}, {"limit", limit}},
+            Json::array()),
        Tool("add_hook",
             "Log execution at an x64 instruction address using VEH, without "
             "single-stepping or callbacks. "

@@ -7,6 +7,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="hooking\address_watchers.h"><Filter>hooking</Filter></ClInclude>
     <ClInclude Include="hooking\exception_hooks.h"><Filter>hooking</Filter></ClInclude>
     <ClInclude Include="ipc\agent.h"><Filter>ipc</Filter></ClInclude>
     <ClInclude Include="ipc\protocol.h"><Filter>ipc</Filter></ClInclude>
@@ -16,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client.cc" />
+    <ClCompile Include="hooking\address_watchers.cc"><Filter>hooking</Filter></ClCompile>
     <ClCompile Include="hooking\exception_hooks.cc"><Filter>hooking</Filter></ClCompile>
     <ClCompile Include="ipc\agent.cc"><Filter>ipc</Filter></ClCompile>
     <ClCompile Include="ipc\protocol.cc"><Filter>ipc</Filter></ClCompile>
